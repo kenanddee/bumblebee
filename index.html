@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BUMBLEBEE // STUDIO</title>
+
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="app-terminal-loader" id="appLoader">
+    <div class="loader-glitch-text">BUMBLEBEE.</div>
+    <div class="loader-progress-bar"><div class="progress-fill"></div></div>
+  </div>
+
+  <div class="cosmic-bg">
+    <div class="glow-orb blue-glow"></div>
+    <div class="glow-orb purple-glow"></div>
+  </div>
+
+  <div class="studio-app-grid">
+    
+    <header class="app-top-header">
+      <div class="app-branding-center">
+        <h1 class="logo-text">BUMBLEBEE</h1>
+        <div class="logo-glow-dot"></div>
+      </div>
+      
+      <div class="header-right-profile">
+        <button class="profile-login-btn" id="loginTrigger" onclick="toggleAuthModal()">
+          <i class="ph-bold ph-user"></i>
+          <span class="avatar-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </span>
+          <span id="userStatusLabel">Sign In</span>
+        </button>
+
+        <div class="user-profile-dropdown-wrapper hidden" id="userActiveSessionBlock">
+          <button class="profile-active-user-card" onclick="toggleProfileDropdownMenu()">
+            <div class="user-current-avatar-container">
+              <i class="ph-bold ph-alien" id="headerAvatarDisplay"></i>
+            </div>
+            <span id="authenticatedUserLabel">Profile</span>
+            <i class="ph-bold ph-caret-down" id="dropdownCaretIcon"></i>
+          </button>
+          
+          <div class="profile-floating-dropdown" id="profileDropdownPlate">
+            <div class="dropdown-header-info">
+              <span class="session-badge">Active Session</span>
+            </div>
+            
+            <div class="avatar-customizer-row">
+              <span class="section-micro-title">Choose Avatar</span>
+              <div class="avatar-presets-grid">
+                <button onclick="changeUserAvatar('alien')" title="Alien"><i class="ph-bold ph-alien"></i></button>
+                <button onclick="changeUserAvatar('skull')" title="Skull"><i class="ph-bold ph-skull"></i></button>
+                <button onclick="changeUserAvatar('crown')" title="Crown"><i class="ph-bold ph-crown"></i></button>
+                <button onclick="changeUserAvatar('ghost')" title="Ghost"><i class="ph-bold ph-ghost"></i></button>
+              </div>
+            </div>
+
+            <hr class="dropdown-divider">
+
+            <button class="dropdown-action-item utility-trigger" onclick="toggleDMCAModal(true)">
+              <i class="ph-bold ph-scales"></i>
+              <span>DMCA / Legal Notice</span>
+            </button>
+
+            <button class="dropdown-action-item utility-trigger" onclick="triggerSessionSignoutWorkflow()">
+              <i class="ph-bold ph-sign-out"></i>
+              <span>Sign Out</span>
+            </button>
+
+            <button class="dropdown-action-item danger-trigger" onclick="terminateProfileAccount()">
+              <i class="ph-bold ph-trash"></i>
+              <span>Delete Profile</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-body-split">
+      
+      <aside class="control-sidebar-left" id="mobileNavMenu">
+        <div class="search-block-capsule">
+          <svg class="search-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" id="globalSearch" placeholder="Search..." autocomplete="off">
+        </div>
+
+        <nav class="vertical-navigation-menu navigation-links-selector">
+          <a href="#" class="menu-link active" onclick="switchCategory('all', this)">
+            <i class="ph-bold ph-house"></i>
+            <span>Home</span>
+          </a>
+          <a href="#" class="menu-link" onclick="switchCategory('tv', this)">
+            <i class="ph-bold ph-television"></i>
+            <span>TV Shows</span>
+          </a>
+          <a href="#" class="menu-link" onclick="switchCategory('movie', this)">
+            <i class="ph-bold ph-film-strip"></i>
+            <span>Movies</span>
+          </a>
+          <a href="#" class="menu-link" onclick="loadDramaContent('KR', this)">
+            <i class="ph-bold ph-star"></i>
+            <span>K-Drama</span>
+          </a>
+          <a href="#" class="menu-link" onclick="loadAnimeContent(this)">
+            <i class="ph-bold ph-sword"></i>
+            <span>Anime</span>
+          </a>
+          <a href="#" class="menu-link" onclick="loadMyList(this)">
+            <i class="ph-bold ph-plus-circle"></i>
+            <span>My List</span>
+          </a>
+        </nav>
+      </aside>
+
+      <main class="workspace-main-panel" id="primaryGridPanel">
+        <div class="premium-hero-container" id="heroCarouselContainer">
+          <div class="hero-track" id="heroTrack"></div>
+          <div class="hero-navigation-controls">
+            <button class="hero-nav-arrow prev" onclick="moveHeroSlide(-1)" aria-label="Previous Slide">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <button class="hero-nav-arrow next" onclick="moveHeroSlide(1)" aria-label="Next Slide">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+          <div class="hero-indicators-timeline" id="heroIndicators"></div>
+        </div>
+
+        <section id="continueWatchingSection" class="hidden">
+          <h3>Continue Watching</h3>
+          <div id="continueWatchingGrid" class="media-grid">
+            </div>
+        </section>
+
+        <div id="homeShelvesContainer" class="home-shelves-wrapper"></div>
+
+        <section class="content-shelf-section hidden" id="singleGridSection">
+          <div id="genreSearchContainer" class="hidden" style="padding: 16px; width: 100%; max-width: 600px; margin: 0 auto;">
+            <div style="position: relative;">
+              <i class="ph-bold ph-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); font-size: 1.1rem;"></i>
+              <input type="text" id="genreSearchInput" placeholder="Search within this section..." 
+                    style="width: 100%; padding: 12px 16px 12px 44px; background: #121224; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: #fff; font-size: 0.95rem; outline: none;" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="bento-grid media-grid" id="trendingGrid"></div>
+        </section>
+      </main>
+
+      <main id="cinemaPlayerPanel" class="workspace-main-panel player-view-panel" style="display: none;">
+        <div class="cinema-header-actions">
+          <button class="back-to-matrix-btn" onclick="closeCinemaView()">
+            <i class="ph-bold ph-arrow-left"></i> Back to Studio Home
+          </button>
+        </div>
+
+        <div class="cinema-core-layout">
+          <div class="cinema-left-column">
+            <div class="video-mount-wrapper">
+              <iframe 
+                id="videoPlayerFrame" 
+                src="" 
+                frameborder="0" 
+                allowfullscreen 
+                allow="autoplay; encrypted-media; picture-in-picture">
+               Abram
+              </iframe>
+            </div>
+
+            <div class="media-utilities-bar">
+              <div class="media-meta-tagging">
+                <h2 id="cinemaMovieTitle">Loading Feature Matrix...</h2>
+                <span class="now-playing-pill">Now Playing</span>
+              </div>
+              <div class="media-action-buttons">
+                <button class="util-btn party-toggle-btn" onclick="toggleWatchPartyPanel()" title="Start Watch Party"><i class="ph-bold ph-users-three"></i></button>
+                <button class="util-btn" onclick="toggleWatchlistFromPlayer()" title="Add to Watchlist"><i class="ph-bold ph-plus"></i></button>
+                <button class="util-btn" onclick="shareCurrentMedia()" title="Share"><i class="ph-bold ph-share-network"></i></button>
+                <button class="util-btn" onclick="downloadStreamTrigger()" title="Download"><i class="ph-bold ph-download-simple"></i></button>
+                
+                <div class="watch-party-panel-card hidden" id="watchPartyConsoleDeck">
+                  <div class="party-panel-header">
+                    <h4><i class="ph-fill ph-broadcast"></i> CO-WATCH STUDIO</h4>
+                    <button type="button" class="close-party-btn" onclick="toggleWatchPartyPanel()">✕</button>
+                  </div>
+                  <div class="party-panel-body">
+                    <div id="partyInitView">
+                      <button type="button" class="party-action-primary" onclick="initiateHostParty()"><i class="ph-bold ph-radio-button"></i> Host Room</button>
+                      <div class="party-divider"><span>OR JOIN FRIENDS</span></div>
+                      <div class="party-input-row">
+                        <input type="text" id="partyJoinIdInput" placeholder="Enter Friend's Room ID...">
+                        <button type="button" class="party-action-secondary" onclick="initiateGuestParty()">Connect</button>
+                      </div>
+                    </div>
+                    
+                    <div id="partyActiveView" class="hidden">
+                      <span class="party-status-indicator"><span class="pulse-dot"></span> Synchronized Session Active</span>
+                      <div class="party-code-box">
+                        <span id="partyCodeDisplay">ID: ---</span>
+                        <button type="button" onclick="copyPartyCode()" title="Copy Code"><i class="ph-bold ph-copy"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="server-security-notice">
+              <i class="ph-fill ph-rocket-launch"></i>
+              <span>Please try different streaming servers if one isn't working. Using ad-blockers or the Brave browser is highly recommended. 😎</span>
+            </div>
+
+            <div class="server-indexing-section">
+              <div class="server-grid" id="serverGridContainer">
+                <button class="server-btn" onclick="if(window.currentActiveMediaId) document.getElementById('videoPlayerFrame').src='https://vidsrc.to/embed/movie/' + window.currentActiveMediaId"><i class="ph-bold ph-play"></i> VidSrc To</button>
+                <button class="server-btn" onclick="if(window.currentActiveMediaId) document.getElementById('videoPlayerFrame').src='https://vidsrc.me/embed/movie/' + window.currentActiveMediaId"><i class="ph-bold ph-play"></i> VidSrc Me</button>
+                <button class="server-btn" onclick="if(window.currentActiveMediaId) document.getElementById('videoPlayerFrame').src='https://embed.su/embed/movie/' + window.currentActiveMediaId"><i class="ph-bold ph-play"></i> Embed Su</button>
+                
+                <button class="server-btn" onclick="if(window.currentActiveMediaId) document.getElementById('videoPlayerFrame').src='https://vidlink.pro/movie/' + window.currentActiveMediaId" style="border-color: rgba(37, 99, 235, 0.4);"><i class="ph-bold ph-lightning"></i> VidLink PRO</button>
+                <button class="server-btn" onclick="if(window.currentActiveMediaId) document.getElementById('videoPlayerFrame').src='https://vidsrc.cc/v2/embed/movie/' + window.currentActiveMediaId" style="border-color: rgba(22, 163, 74, 0.4);"><i class="ph-bold ph-lightning"></i> VidSrc CC</button>
+              </div>
+            </div>
+
+            <div id="tvControlNode" class="hidden"></div>
+
+            <div class="recommendations-container" style="margin-top: 30px;">
+              <h3 style="color: #fff; margin-bottom: 15px; font-weight: 600;">More Recommended Options</h3>
+              <div id="recommendedGrid" class="media-grid"></div>
+            </div>
+          </div>
+
+          <aside class="cinema-right-sidebar">
+            <div class="metadata-poster-card">
+              <img id="cinemaPosterImg" src="" alt="Poster Element">
+              <div class="poster-overlay-specs">
+                <span id="cinemaRatingBadge"><i class="ph-fill ph-star"></i> 0.0</span>
+                <span id="cinemaStatusBadge">Released</span>
+              </div>
+            </div>
+
+            <div class="meta-profile-details">
+              <h3 id="sidebarMovieTitle">Title</h3>
+              <div class="meta-inline-specs">
+                <span id="cinemaYearSpec">2026</span>
+                <span id="cinemaStudioSpec">Bumblebee Index</span>
+              </div>
+              <div id="cinemaPlotSummary" class="plot-writeup">Resolving media nodes...</div>
+            </div>
+
+            <div class="genre-tag-cloud" id="cinemaGenreCloud"></div>
+
+            <div class="cast-roster-section">
+              <h4>Characters & Cast</h4>
+              <div class="cast-vertical-list" id="cinemaCastList"></div>
+            </div>
+          </aside>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <div class="auth-modal" id="authModal">
+    <div class="auth-backdrop" onclick="toggleAuthModal()"></div>
+    <div class="auth-window">
+      <div class="auth-tabs-row">
+        <button class="auth-tab-btn active" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
+        <button class="auth-tab-btn" id="tabRegister" onclick="switchAuthTab('register')">Register</button>
+      </div>
+
+      <h2 id="authTitle">WELCOME BACK</h2>
+      <p id="authDescription">Enter your Username and Password</p>
+      
+      <div class="auth-status-message hidden" id="authStatusMessage"></div>
+
+      <form id="authForm" onsubmit="handleAuthEngineSubmit(event)">
+        <div class="input-field-group">
+          <input type="text" id="authUsername" placeholder="Enter Unique Username" required autocomplete="off">
+        </div>
+        <div class="input-field-group">
+          <input type="password" id="authPassword" placeholder="Enter Access Cipher Token" required autocomplete="off">
+        </div>
+        <button type="submit" class="auth-submit-action" id="authSubmitBtn">Access Interface</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-overlay-backdrop" onclick="closeSearchOverlay()"></div>
+    <div class="search-overlay-content">
+      <div class="search-overlay-header">
+        <div class="search-input-wrapper">
+          <svg class="search-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" id="overlaySearchInput" placeholder="Search all content..." autocomplete="off">
+        </div>
+        <button class="close-overlay-btn" onclick="closeSearchOverlay()">✕ Close</button>
+      </div>
+      <div class="search-results-container">
+        <h3 class="results-heading" id="resultsHeading">Trending Now</h3>
+        <div class="bento-grid media-grid" id="overlayResultsGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-modal" id="dmcaModal">
+    <div class="auth-backdrop" onclick="toggleDMCAModal(false)"></div>
+    <div class="auth-window legal-window">
+      <h2>LEGAL & DMCA POLICY</h2>
+      <p class="legal-subtext">BUMBLEBEE // STUDIO Interface Specifications</p>
+      
+      <div class="legal-scroller">
+        <h3>1. Content Indexing Policy</h3>
+        <p>BUMBLEBEE // STUDIO operates strictly as an interactive metadata index system. The platform does not host, stream, clone, store, or transmit any multimedia video matrices or file elements on its localized client databases or arrays.</p>
+        
+        <h3>2. Digital Millennium Copyright Act (DMCA)</h3>
+        <p>We respect intellectual property protocols. All metadata links and assets are pulled dynamically from publicly available scraping layers. If your copyrighted work is indexed inappropriately, please forward clear documentation parameters to your operational webmaster platform for complete structural node exclusion.</p>
+        
+        <h3>3. Privacy Assertions</h3>
+        <p>This software utilizes zero diagnostic telemetry, tracker matrices, or remote email collections. Your security token handle remains isolated purely inside your physical machine sandbox partition storage.</p>
+      </div>
+      
+      <button class="auth-submit-action" onclick="toggleDMCAModal(false)">Acknowledge Notice</button>
+    </div>
+  </div>
+
+  <div id="mobileMorePanel" class="mobile-more-panel">
+    <div class="panel-section">
+      <span class="panel-section-title">MEDIA</span>
+      <div class="panel-grid">
+        <button type="button" class="panel-nav-btn" data-target="movie">
+          <i class="ph-bold ph-film-strip"></i>
+          <span>Movies</span>
+        </button>
+        <button type="button" class="panel-nav-btn" data-target="tv">
+          <i class="ph-bold ph-television"></i>
+          <span>TV Shows</span>
+        </button>
+        <button type="button" class="panel-nav-btn" data-target="anime">
+          <i class="ph-bold ph-sword"></i>
+          <span>Anime</span>
+        </button>
+        <br>
+        <button type="button" class="panel-nav-btn" data-target="kdrama">
+          <i class="ph-bold ph-star"></i>
+          <span>K-Drama</span>
+        </button>
+      </div>
+    </div>
+    <div class="panel-section">
+      <span class="panel-section-title">MORE</span>
+      <div class="panel-grid">
+        <br>
+        <button type="button" id="mobileDmcaBtn">
+          <i class="ph-bold ph-file-text"></i>
+          <span>Legal/DMCA</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-bottom-nav">
+    <button type="button" class="nav-item active" data-nav="all">
+      <i class="ph-bold ph-house"></i><span>Home</span>
+    </button>
+    <button type="button" class="nav-item" id="mobileSearchTrigger">
+      <i class="ph-bold ph-magnifying-glass"></i><span>Search</span>
+    </button>
+    <button type="button" class="nav-item" data-nav="mylist">
+      <i class="ph-bold ph-heart-straight"></i><span>My List</span>
+    </button>
+    <button type="button" class="nav-item" id="moreMenuTrigger">
+      <i class="ph-bold ph-dots-three-outline"></i><span>More</span>
+    </button>
+  </div>
+
+  <footer class="bumblebee-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="brand-logo">🐝 BUMBLEBEE</span>
+        <p class="brand-tagline">Stream smarter. Zero tracking.</p>
+      </div>
+      
+      <ul class="footer-links">
+        <li><a href="#" onclick="switchCategory('all', this)">Home</a></li>
+        <li><a href="#" onclick="loadMyList(this)">My List</a></li>
+        <li><a href="#" onclick="toggleDMCAModal(true)">DMCA</a></li>
+        <li><a href="#" id="footerLoginTrigger" onclick="toggleAuthModal()">Sign In</a></li>
+      </ul>
+
+      <div class="footer-meta-right">
+        <span class="footer-credits">Made with <span id="easterEggHeart" onclick="triggerHeartRain(event)" style="cursor: pointer; display: inline-block; transition: transform 0.2s;">❤️</span> by KEN & DEE</span>
+        <div class="footer-copyright">&copy; 2026 Bumblebee Studio.</div>
+      </div>
+    </div>
+  </footer>
+
+  <button id="globalScrollTopBtn" class="global-scroll-top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Scroll to Top">
+    <i class="ph-bold ph-arrow-up"></i>
+  </button>
+
+
+  <div id="premiumDeleteModal" class="premium-modal-overlay">
+    <div class="premium-modal-window">
+      <div class="premium-modal-header">
+        <i class="ph-fill ph-warning-octagon warning-glow-icon"></i>
+        <h3>WARNING</h3>
+      </div>
+      <div class="premium-modal-body">
+        <p>Are you sure you want to permanently delete profile <span id="deleteModalTargetName" class="highlight-username">"dan"</span>?</p>
+        <p class="sub-warning">This will wipe your watchlists and viewing history, permanently.</p>
+      </div>
+      <div class="premium-modal-actions">
+        <button type="button" id="cancelDeleteBtn" class="modal-btn btn-secondary">Cancel</button>
+        <button type="button" id="confirmDeleteBtn" class="modal-btn btn-danger">Terminate Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="premiumSignoutModal" class="cute-modal-overlay">
+    <div class="cute-modal-window">
+      <div class="cute-modal-header">
+        <div class="cute-icon-wrapper">
+          <i class="ph-fill ph-smiley-wink cute-wave-icon"></i>
+        </div>
+        <h3>Heading Out Already?</h3>
+      </div>
+      <div class="cute-modal-body">
+        <p>Are you sure you want to disconnect your current active session from Bumblebee?</p>
+        <p class="sub-text">We'll save your spot on the couch for when you get back! ✨</p>
+      </div>
+      <div class="cute-modal-actions">
+        <button type="button" id="cancelSignoutBtn" class="cute-btn btn-stay">Stay on couch</button>
+        <button type="button" id="confirmSignoutBtn" class="cute-btn btn-leave">Disconnect</button>
+      </div>
+    </div>
+  </div>
+
+
+
+<div id="secretCapsuleModal" class="full-screen-romance">
+  
+  <div class="romance-bg"></div>
+
+  <button class="close-romance-btn" onclick="closeSecretLoveCapsule()">✕ Close Gallery</button>
+  
+  <div class="music-player-node" onclick="toggleBGM()">
+    <div id="musicDisc" class="music-disc spinning">
+      <i class="ph-fill ph-music-notes"></i>
+    </div>
+  </div>
+  
+  <audio id="romanceBGM" loop preloaded="auto">
+    <source src="audio/love.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="romance-content-wrapper">
+    
+    <div class="cute-title-container">
+      <h1 class="cute-title">My Favorite Plot Twist 💖</h1>
+      <p class="cute-subtitle">Every single day with you feels like magic. <br> I love you the most puku!!!</p>
+    </div>
+
+    <div class="media-universe">
+      
+      <div class="floating-polaroid pos-1">
+        <img src="items/1img.jpg" alt="Us 1">
+        <div class="polaroid-text">Just us 🥺</div>
+      </div>
+
+      <div class="floating-polaroid pos-2">
+        <img src="items/2img.jpg" alt="Us 2">
+        <div class="polaroid-text">The best days</div>
+      </div>
+
+      <div class="center-video-frame">
+        <div class="video-glow-ring"></div>
+        <video autoplay loop muted playsinline>
+          <source src="video/bgvid.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <div class="floating-polaroid pos-3">
+        <img src="items/3img.jpg" alt="Us 3">
+        <div class="polaroid-text">My whole heart.</div>
+      </div>
+
+      <div class="floating-polaroid pos-4">
+        <img src="items/4img.jpg" alt="Us 4">
+        <div class="polaroid-text">Forever & always.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  <div id="secureMatrixOverlay" class="mosaic-matrix-overlay">
+  <div class="matrix-bg-glow"></div>
+  
+  <div class="matrix-content-wrapper">
+    <div class="matrix-header-node">
+      <h1 class="matrix-title">
+        <i class="ph-fill ph-shield-warning" style="color: #f43f5e; margin-right: 8px;"></i>
+        SYSTEM OVERRIDE SUCCESSFUL
+      </h1>
+      <p class="matrix-subtitle">You clicked what you shouldn't have. Now you have to look at these.</p>
+    </div>
+
+    <div class="matrix-photo-grid">
+      <div class="matrix-flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="matrix-card-inner">
+          <div class="matrix-card-front">
+            <img src="items/type2.jpg" alt="Memory 1">
+            <div class="card-hint">
+              <i class="ph-bold ph-hand-tap"></i> Tap to open
+            </div>
+          </div>
+          <div class="matrix-card-back">
+            <div class="heart-icon-badge"><i class="ph-fill ph-heart"></i></div>
+            <h3>The perfect person ✨</h3>
+            <p>Who makes my heart skip a beat every time I see her.</p>
+            <span class="memory-date">I love you more than anything</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="matrix-flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="matrix-card-inner">
+          <div class="matrix-card-front">
+            <img src="items/type3.jpg" alt="Memory 2">
+            <div class="card-hint">
+              <i class="ph-bold ph-hand-tap"></i> Tap to open
+            </div>
+          </div>
+          <div class="matrix-card-back">
+            <div class="heart-icon-badge"><i class="ph-fill ph-heart"></i></div>
+            <h3>My Favorite Person 🤗</h3>
+            <p>The moment I realized you were completely crazy (and perfect).</p>
+            <span class="memory-date">Forver my pukuuu</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="closeSecureMatrixSystem()" class="matrix-exit-btn">
+      <i class="ph-bold ph-power" style="margin-right: 6px;"></i> Exit System Terminal
+    </button>
+  </div>
+</div>
+
+<audio id="glitchAudioNode" preload="auto">
+  <source src="audio/glitch.mp3" type="audio/mpeg">
+</audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
