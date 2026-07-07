@@ -2439,21 +2439,11 @@ function closeSecureMatrixSystem() {
   }
 }
 
-// ==========================================================================
-// 🛡️ ANTI-POPUP & CLICKJACK INTERCEPTOR ENGINE
-// ==========================================================================
-(function() {
-    // 1. Hijack window.open to trap and destroy hidden ad popups before they spawn
-    const originalWindowOpen = window.open;
-    window.open = function(url, target, features) {
-        console.log("🚫 Bumblebee Intercepted an Ad Popup to: ", url);
-        return null; 
-    };
-
-    // 2. Lock navigation loops if an ad tries to hijack your top-level page location
-    window.onbeforeunload = function() {
-        setTimeout(() => {
-            window.stop();
-        }, 1);
-    };
-})();
+// ad blocker pop up
+function destroyShield() {
+    const shield = document.getElementById('mobileAdShield');
+    if (shield) {
+        console.log("🛡️ Mobile AdShield absorbed the clickjack and dissolved.");
+        shield.remove(); 
+    }
+}
